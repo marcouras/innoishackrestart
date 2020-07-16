@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CitySense</title>
+    <link type="text/css"
+          href="{{ url_for('static', filename='css/bootstrap.css') }}"
+          rel="stylesheet">
+    <link type="text/css"
+          href="{{ url_for('static', filename='css/main.css') }}"
+          rel="stylesheet">
+    <link type="text/css"
+          href="{{ url_for('static', filename='css/Chart.min.css') }}"
+          rel="stylesheet">
+</head>
+<body>
+<div class="sidenav" style="color: dimgray; text-align: center">
+    <p style="color: lightgray; font-size: 110%">People Counting</p>
+    <div class="row">
+        <div class="col-lg-2">
+
+        </div>
+        <div class="col-lg-8">
+            <p style="font-size: 80%">Last Hour</p>
+            <span id="hour" style="font-size: 300%; color: rgba(56, 120, 199, 1); font-weight: bold;"></span>
+        </div>
+        <div class="col-lg-2">
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <p style="font-size: 80%">Last Day</p>
+            <span id="day" style="font-size: 200%; color: rgba(56, 120, 199, 1); font-weight: bold;"></span>
+        </div>
+        <div class="col-lg-6">
+            <p style="font-size: 80%">Last Week</p>
+            <span id="week" style="font-size: 200% ; color: rgba(56, 120, 199, 1); font-weight: bold;"></span>
+        </div>
+    </div>
+    <br>
+
+    {% if weather_data != None %}
+        <p style="color: lightgray; font-size: 110%">Actual wheater in Cagliari&emsp;<img
+                src="{{ weather_data['icon'] }}" style="width: 64px"></p>
+        {% for w_row in weather_data %}
+            {% if w_row != 'icon' %}
+                <div class="row">
+                    <div class="col-lg-6">
+                        <span style="font-size: 80%; color: rgba(56, 120, 199, 1);">{{ w_row }}</span>
+                    </div>
+                    <div class="col-lg-6">
+                        <span style="font-size: 80%; color: rgba(56, 120, 199, 1); font-weight: bold;">{{ weather_data[w_row] }}</span>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+        <br>
+    {% endif %}
+
+
+    {% if pollution_data != None %}
+        <p style="color: lightgray; font-size: 110%">Actual air quality in Cagliari</p>
+
+        <div class="alert" role="alert"
+             style="background-color: {% if pollution_data['Air pollution level'] == "Good" %}rgba(168, 224, 95,1){% elif pollution_data['Air pollution level'] == "Moderate" %}rgba(253, 215, 75,1){% else %}rgba(255, 0, 0,1){% endif %}">
+            <span style="font-size: 150%; color: {% if pollution_data['Air pollution level'] == "Good" %}rgba(5,114,78,1){% elif pollution_data['Air pollution level'] == "Moderate" %}rgba(253, 110, 75,1){% else %}rgba(114, 2, 2,1){% endif %}; font-weight: bold; text-align: left">{{ pollution_data['Air pollution level'] }}</span>
+            <img src="{{ pollution_data['icon'] }}" style="text-align: right">
+        </div>
+
+        {% for p_row in pollution_data %}
+            {% if p_row != 'icon' %}
+                <div class="row">
+                    <div class="col-lg-6">
+                        <span style="font-size: 80%; color: rgba(56, 120, 199, 1);">{{ p_row }}</span>
+                    </div>
+                    <div class="col-lg-6">
+                        <span style="font-size: 80%; color: rgba(56, 120, 199, 1); font-weight: bold;">{{ pollution_data[p_row] }}</span>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+        <br>
+    {% endif %}
+
+
+
+
+
+
+    <!--
+    <p style="color: lightgray; font-size: 110%">Crowded Places Top 5</p>
+    <table class="table table-borderless table-hover table-dark">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Place</th>
+        </tr>
+        </thead>
+        <tbody id="place_table">
+        {% for p in places %}
+            <tr>
+                <th scope="row">{{ p[0] }}</th>
+                <td>{{ p[1] }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+    <canvas id="myChart3"></canvas>
+    <canvas id="myChart4"></canvas>
+    <canvas id="myChart5"></canvas>
+    <canvas id="myChart6"></canvas>
+    <canvas id="myChart7"></canvas>
+    -->
+
+</div>
+<div id="map"></div>
+
+<div class="sidenav flipped" style="color: dimgray; text-align: center; right:0; left:auto !important;">
+
+    {% if city %}
+        <p style="color: lightgray; font-size: 110%">People Trend</p>
+        <canvas id="myChart"></canvas>
+        <br>
+        <br>
+        <canvas id="day_chart"></canvas>
+
+        <br>
+
+
+        <p style="color: lightgray; font-size: 110%">Crowded Places Top 5</p>
+        <canvas id="polar_places"></canvas>
+        <br>
+        <table class="table table-borderless table-hover table-dark">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Place</th>
+            </tr>
+            </thead>
+            <tbody id="place_table">
+
+            </tbody>
+        </table>
+        <br>
+
+    {% else %}
+
+        <p style="color: lightgray; font-size: 110%">Social distancing COVID-19</p>
+        <div class="row">
+            <div class="col-lg-6"><span
+                    style="font-size: 80%; color: rgba(56, 120, 199, 1); font-weight: bold">{{ infos['area'] }}</span>
+            </div>
+            <div class="col-lg-6"><span style="font-size: 80%; color: rgba(56, 120, 199, 1);">Monitored Area</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6"><span
+                    style="font-size: 80%; color: rgba(56, 120, 199, 1); font-weight: bold">{{ infos['soglia'] }}</span>
+            </div>
+            <div class="col-lg-6"><span
+                    style="font-size: 80%; color: rgba(56, 120, 199, 1);">Distancing threshold</span></div>
+        </div>
+        <br>
+        <div id="covid-19" class="alert" role="alert"
+             style="background-color: rgb(180,180,180);">
+            <img id="covid-icon" src="{{ url_for('static', filename="img/coronavirus.svg") }}" style="text-align: right; width: 48px">
+
+            <span id="distancing-respect"
+                  style="font-size: 150%; color: rgb(86,86,86); font-weight: bold; text-align: left">Wait...</span>
+        </div>
+
+        <br>
+
+        <p style="color: lightgray; font-size: 110%">Crowding in monitored area</p>
+        <canvas id="polar_places"></canvas>
+        <br>
+        <table class="table table-borderless table-hover table-dark">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Place</th>
+            </tr>
+            </thead>
+            <tbody id="place_table">
+
+            </tbody>
+        </table>
+        <br>
+
+        <p style="color: lightgray; font-size: 110%">People Trend</p>
+        <canvas id="myChart"></canvas>
+        <br>
+        <br>
+        <canvas id="day_chart"></canvas>
+
+    {% endif %}
+
+
+</div>
+
+
+</body>
+<script type="text/javascript"
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAE1oQtwl5KHeuS5JPWIn_gMio2jnWWGg&libraries=visualization&sensor=false&"></script>
+<script src="{{ url_for('static', filename='js/core/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+<script src="{{ url_for('static', filename='js/core/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/socketio2.2.0.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ws.js') }}"></script>
+<script src="{{ url_for('static', filename='js/maps.js') }}"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+</html>
