@@ -9,7 +9,7 @@ geopy==2.0.0
 googlemaps==4.4.1
 idna==2.10
 itsdangerous==1.1.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 joblib==0.16.0
 MarkupSafe==1.1.1
 nltk==3.5
